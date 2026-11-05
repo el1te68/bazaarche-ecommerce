@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Bazaarche.Api/Bazaarche.Api.csproj" />
+    <Project Path="src/Bazaarche.Application/Bazaarche.Application.csproj" />
+    <Project Path="src/Bazaarche.Domain/Bazaarche.Domain.csproj" />
+    <Project Path="src/Bazaarche.Infrastructure/Bazaarche.Infrastructure.csproj" />
+  </Folder>
+</Solution>

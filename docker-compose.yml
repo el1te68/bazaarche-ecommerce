@@ -1,0 +1,47 @@
+name: bazaarche
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bazaarche
+      POSTGRES_USER: bazaarche
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-bazaarche_pass}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bazaarche -d bazaarche"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Default: Host=db;Port=5432;Database=bazaarche;Username=bazaarche;Password=${DB_PASSWORD:-bazaarche_pass}
+      Jwt__Key: ${JWT_KEY:-change-this-to-a-long-random-secret-key-0123456789}
+      Seed__AdminPhone: ${ADMIN_PHONE:-09120000000}
+      Seed__AdminPassword: ${ADMIN_PASSWORD:-Admin@123}
+      Seed__DemoData: ${SEED_DEMO_DATA:-true}
+    volumes:
+      - uploads:/app/uploads
+    ports:
+      - "5180:8080"   # direct API access (optional): http://localhost:5080/scalar/v1
+
+  web:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PORT:-3000}:80"
+
+volumes:
+  pgdata:
+  uploads:
